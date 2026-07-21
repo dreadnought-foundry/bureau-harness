@@ -1,10 +1,14 @@
 # Thin trigger stub — pipeline logic lives in dreadnought-foundry/bureau-pipeline
-# (reusable workflows; @main is the rollout channel).
+# (reusable workflows; pinned to release tag @main; pipeline_ref must match the pin).
+# REPO-AGNOSTIC except `max_wip`: 4 is the new-project default (agent-bureau
+# itself runs 12). Tune it per repo once throughput is understood.
 name: Reconcile
 
 on:
   schedule:
     - cron: "*/15 * * * *"
+  repository_dispatch:
+    types: [reconcile]
   workflow_dispatch:
 
 permissions:
@@ -14,6 +18,14 @@ permissions:
 jobs:
   call:
     uses: dreadnought-foundry/bureau-pipeline/.github/workflows/reconcile.yml@main
-    secrets: inherit
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+      BUREAU_APP_ID: ${{ secrets.BUREAU_APP_ID }}
+      BUREAU_APP_PRIVATE_KEY: ${{ secrets.BUREAU_APP_PRIVATE_KEY }}
+      BUREAU_QA_APP_ID: ${{ secrets.BUREAU_QA_APP_ID }}
+      BUREAU_QA_APP_PRIVATE_KEY: ${{ secrets.BUREAU_QA_APP_PRIVATE_KEY }}
     with:
-      max_wip: "12"
+      pipeline_ref: main
+      max_wip: "4"

@@ -1,6 +1,8 @@
 # Thin trigger stub — pipeline logic lives in dreadnought-foundry/bureau-pipeline
-# (reusable workflows; @main is the rollout channel). The workflow_run list
-# names this repo's own CI workflows — keep it current when CI changes.
+# (reusable workflows; pinned to release tag @main; pipeline_ref must match the pin). The workflow_run list
+# names THIS repo's own CI workflows by their `name:` — keep it byte-aligned
+# with ci.yml's `name:` (the scaffold ships both as "CI"). If the CLI renames
+# the CI workflow, it must update this list and medic.yml's in the same change.
 name: Merge Gate
 
 on:
@@ -22,4 +24,13 @@ permissions:
 jobs:
   call:
     uses: dreadnought-foundry/bureau-pipeline/.github/workflows/merge-gate.yml@main
-    secrets: inherit
+    with:
+      pipeline_ref: main
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+      BUREAU_APP_ID: ${{ secrets.BUREAU_APP_ID }}
+      BUREAU_APP_PRIVATE_KEY: ${{ secrets.BUREAU_APP_PRIVATE_KEY }}
+      BUREAU_QA_APP_ID: ${{ secrets.BUREAU_QA_APP_ID }}
+      BUREAU_QA_APP_PRIVATE_KEY: ${{ secrets.BUREAU_QA_APP_PRIVATE_KEY }}
