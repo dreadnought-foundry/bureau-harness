@@ -1,0 +1,19 @@
+# Thin trigger stub — pipeline logic lives in dreadnought-foundry/bureau-pipeline
+# (reusable workflows; @main is the rollout channel).
+name: Reconcile
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  call:
+    uses: dreadnought-foundry/bureau-pipeline/.github/workflows/reconcile.yml@main
+    secrets: inherit
+    with:
+      max_wip: "12"

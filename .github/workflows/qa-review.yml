@@ -1,0 +1,25 @@
+# Thin trigger stub — pipeline logic lives in dreadnought-foundry/bureau-pipeline
+# (reusable workflows; @main is the rollout channel).
+name: QA Review
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: PR number to review
+        required: true
+
+concurrency:
+  group: qa-review-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  call:
+    uses: dreadnought-foundry/bureau-pipeline/.github/workflows/qa-review.yml@main
+    secrets: inherit

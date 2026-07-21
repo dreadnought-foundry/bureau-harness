@@ -1,0 +1,25 @@
+# Thin trigger stub — pipeline logic lives in dreadnought-foundry/bureau-pipeline
+# (reusable workflows; @main is the rollout channel). The workflow_run list
+# names this repo's own CI workflows — keep it current when CI changes.
+name: Merge Gate
+
+on:
+  workflow_run:
+    workflows: [CI, QA Review]
+    types: [completed]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: PR number to (re-)evaluate
+        required: true
+
+permissions:
+  contents: read
+  actions: write  # dispatch agent-fix on DIRTY (qa-bot App has no Actions perms)
+
+jobs:
+  call:
+    uses: dreadnought-foundry/bureau-pipeline/.github/workflows/merge-gate.yml@main
+    secrets: inherit
