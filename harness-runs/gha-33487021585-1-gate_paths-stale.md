@@ -9,3 +9,5 @@ hold until a fresh review covers the new commit.
 It records nothing and changes no behavior. The harness deletes it
 during cleanup; if it is still here, a run crashed mid-flight and
 the next run's sweep will remove it.
+
+Second commit — makes the APPROVE for aa16d87ca40dde28017f9c597b9e5d8ca4d42922 stale.
