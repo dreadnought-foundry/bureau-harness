@@ -1,0 +1,39 @@
+# Thin trigger stub — pipeline logic lives in dreadnought-foundry/bureau-pipeline
+# (reusable workflows; pinned to release tag @main; pipeline_ref must match the pin).
+# REPO-AGNOSTIC: the onboarding CLI pushes this file verbatim.
+#
+# Installed 2026-09-09 (DRE-3486): the sandbox proved commits with four stubs and
+# never this one, so the workflow that builds every card in the fleet was the one
+# workflow the gate never parsed — which is how a1bf0625 (DRE-3484, unparseable
+# to GitHub) reached the channel. The `agent_task_parses` rehearsal dispatches
+# `agent-execute` here and asserts a job actually started.
+name: Agent Task
+
+on:
+  repository_dispatch:
+    types: [agent-execute]
+
+concurrency:
+  group: agent-${{ github.event.client_payload.identifier }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  call:
+    uses: dreadnought-foundry/bureau-pipeline/.github/workflows/agent-task.yml@main
+    # Secrets are mapped EXPLICITLY, one per line — inherit silently passes an
+    # empty secrets store across the cross-org reusable-workflow boundary and
+    # the critic aborts on an empty token (DRE-2131).
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+      BUREAU_APP_ID: ${{ secrets.BUREAU_APP_ID }}
+      BUREAU_APP_PRIVATE_KEY: ${{ secrets.BUREAU_APP_PRIVATE_KEY }}
+      BUREAU_QA_APP_ID: ${{ secrets.BUREAU_QA_APP_ID }}
+      BUREAU_QA_APP_PRIVATE_KEY: ${{ secrets.BUREAU_QA_APP_PRIVATE_KEY }}
+    with:
+      pipeline_ref: main
