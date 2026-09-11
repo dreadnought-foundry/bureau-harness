@@ -27,5 +27,9 @@ jobs:
       BUREAU_QA_APP_ID: ${{ secrets.BUREAU_QA_APP_ID }}
       BUREAU_QA_APP_PRIVATE_KEY: ${{ secrets.BUREAU_QA_APP_PRIVATE_KEY }}
     with:
+      # The operator's Intake pen (INTAKE_HOLD): this sweep reads the PRODUCTION board, and
+      # without this line it aged 130+ cards into the CEO's queue on 2026-09-09/10 while every
+      # other sweep held (DRE-3579). Same line as the product repos' stubs.
+      intake_hold: ${{ vars.INTAKE_HOLD }}
       pipeline_ref: main
       max_wip: "4"
