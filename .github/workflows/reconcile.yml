@@ -31,5 +31,9 @@ jobs:
       # without this line it aged 130+ cards into the CEO's queue on 2026-09-09/10 while every
       # other sweep held (DRE-3579). Same line as the product repos' stubs.
       intake_hold: ${{ vars.INTAKE_HOLD }}
+      # The sandbox seat (DRE-3622/DRE-3634): this sweep spends bureau-sandbox's own Linear hour,
+      # not the fleet's. secrets.LINEAR_API_KEY in THIS repo is the bureau-sandbox key since
+      # 2026-09-13; every product repo stays on the fleet seat and passes nothing here.
+      linear_identity: sandbox
       pipeline_ref: main
       max_wip: "4"
