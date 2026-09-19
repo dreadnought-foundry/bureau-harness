@@ -1,7 +1,35 @@
+# The sandbox's OWN product CI — the one workflow here that is not a pipeline
+# stub. It exists to put a green check run on every PR head, because the merge
+# gate fail-closes to `wait` on a head with no non-review checks
+# (bureau-pipeline docs/harness.md). Its steps exercise the sandbox's own
+# package, nothing of the pipeline's.
+#
+# Triggers are the scaffold's (DRE-4280): `pull_request`, and `push` on main
+# only. Until this change it fired on EVERY push, so each harness branch cost
+# two identical runs of the same tree, and the branch-push half never woke
+# anything: the gate listens only for `workflow_run.event == 'pull_request'`.
+# Measured over 2026-09-01..2026-09-18: 3,448 branch-push runs — 41% of this
+# workflow's own 8,345 runs, 14% of the repo's 24,660. The other 2,990 pushes
+# are to `main` and stay. GitHub bills each job rounded up to a whole minute,
+# so a 20-second job run a thousand times is a thousand minutes.
+# tests/test_harness_proves_main.py pins this shape.
+#
+# DO NOT rename `name:` — merge-gate.yml's `workflow_run` list matches on it.
 name: CI
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches: [main]
 jobs:
   test:
+    # Stays on GitHub-hosted ubuntu-latest — deliberately NOT the scaffold's
+    # `fromJSON(vars.BUREAU_CI_RUNS_ON || vars.BUREAU_RUNS_ON || …)` expression
+    # (agent-bureau scaffold/customer-repo/.github/workflows/ci.yml) that
+    # routes fleet CI onto the Mac minis (DRE-4280). Each job here is
+    # ~0.3 minutes, but there are 300+ a day, and that flood would land in a
+    # queue that already serialises (38 jobs waiting on 2026-09-18). Moving it
+    # is a decision, not a drive-by: tests/test_harness_proves_main.py fails
+    # the moment this line changes.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
