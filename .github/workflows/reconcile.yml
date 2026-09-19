@@ -26,6 +26,22 @@ jobs:
       BUREAU_APP_PRIVATE_KEY: ${{ secrets.BUREAU_APP_PRIVATE_KEY }}
       BUREAU_QA_APP_ID: ${{ secrets.BUREAU_QA_APP_ID }}
       BUREAU_QA_APP_PRIVATE_KEY: ${{ secrets.BUREAU_QA_APP_PRIVATE_KEY }}
+      # The dispatch pool (DRE-4282), passed by name (DRE-4323). This map is
+      # explicit rather than `secrets: inherit` (DRE-2131), so the six org-level
+      # pool secrets never reached this sweep: it read GitHub through the first
+      # worker bot alone, logged "no additional pool apps configured" on every
+      # pass, and went red whenever that one bot's hourly allowance was spent —
+      # while every product repo's sweep, in the same minute, read through a
+      # bot with headroom and passed. All six are optional in the reusable
+      # workflow: a missing pair shrinks the pool, and a probe that cannot mint
+      # is skipped (continue-on-error), so this can only widen what the sweep
+      # can read through, never break it.
+      BUREAU_APP_ID_2: ${{ secrets.BUREAU_APP_ID_2 }}
+      BUREAU_APP_PRIVATE_KEY_2: ${{ secrets.BUREAU_APP_PRIVATE_KEY_2 }}
+      BUREAU_APP_ID_3: ${{ secrets.BUREAU_APP_ID_3 }}
+      BUREAU_APP_PRIVATE_KEY_3: ${{ secrets.BUREAU_APP_PRIVATE_KEY_3 }}
+      BUREAU_APP_ID_4: ${{ secrets.BUREAU_APP_ID_4 }}
+      BUREAU_APP_PRIVATE_KEY_4: ${{ secrets.BUREAU_APP_PRIVATE_KEY_4 }}
     with:
       # The operator's Intake pen (INTAKE_HOLD): this sweep reads the PRODUCTION board, and
       # without this line it aged 130+ cards into the CEO's queue on 2026-09-09/10 while every
