@@ -24,6 +24,11 @@ jobs:
   call:
     uses: dreadnought-foundry/bureau-pipeline/.github/workflows/qa-review.yml@main
     with:
+      # The sandbox seat (DRE-3622/DRE-3634), same line as reconcile.yml: secrets.LINEAR_API_KEY
+      # in THIS repo is the bureau-sandbox key, so the review's `linear-budget:` line must say
+      # `sandbox`, not the reusable's `fleet` default. Requires bureau-pipeline's qa-review.yml
+      # to declare the `linear_identity` input (Stage 2 BP-1) — merge only after that is on main.
+      linear_identity: sandbox
       pipeline_ref: main
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

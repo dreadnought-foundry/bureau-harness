@@ -36,4 +36,9 @@ jobs:
       BUREAU_QA_APP_ID: ${{ secrets.BUREAU_QA_APP_ID }}
       BUREAU_QA_APP_PRIVATE_KEY: ${{ secrets.BUREAU_QA_APP_PRIVATE_KEY }}
     with:
+      # The sandbox seat (DRE-3622/DRE-3634), same line as reconcile.yml: secrets.LINEAR_API_KEY
+      # in THIS repo is the bureau-sandbox key, so the build's `linear-budget:` line must say
+      # `sandbox`, not the reusable's `fleet` default. Requires bureau-pipeline's agent-task.yml
+      # to declare the `linear_identity` input (Stage 2 BP-1) — merge only after that is on main.
+      linear_identity: sandbox
       pipeline_ref: main
