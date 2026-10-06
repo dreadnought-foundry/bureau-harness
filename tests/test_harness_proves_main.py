@@ -49,29 +49,39 @@ def test_ci_fires_on_pull_requests_and_pushes_to_main_only():
     assert on["push"] == {"branches": ["main"]}, on["push"]
 
 
-def test_ci_jobs_stay_on_github_hosted_ubuntu():
+#: The scaffold's runner expression, byte for byte (agent-bureau
+#: scaffold/customer-repo/.github/workflows/ci.yml): the CI routing variable,
+#: then the fleet-wide one. Since 2026-10-06 both name RunsOn here (DRE-5984).
+ROUTED = ("${{ fromJSON(vars.BUREAU_CI_RUNS_ON || vars.BUREAU_RUNS_ON "
+          "|| '[\"ubuntu-latest\"]') }}")
+
+
+def test_ci_jobs_ride_the_routing_variable_never_github():
+    # The CEO's rule, 2026-10-06: no job runs on GitHub's machines. This job sat
+    # on `ubuntu-latest` from DRE-4280 to keep 300+ short runs a day out of the
+    # Mac mini queue; RunsOn gives each job its own machine, so there is no
+    # queue to flood, and the job follows the routing variable like the rest.
     jobs = workflow(CI)["jobs"]
     assert jobs, "ci.yml declares no jobs"
     for name, job in jobs.items():
-        assert job.get("runs-on") == "ubuntu-latest", (
-            f"job {name!r} runs on {job.get('runs-on')!r}: moving this flood "
-            "onto the Mac minis is a decision, not a drive-by"
+        assert job.get("runs-on") == ROUTED, (
+            f"job {name!r} runs on {job.get('runs-on')!r}: it must read the "
+            "routing variable, never a literal runner (DRE-5984)"
         )
 
 
 def test_the_runner_choice_is_explained_where_it_is_made():
     text = CI.read_text()
-    head, sep, _ = text.partition("runs-on: ubuntu-latest")
-    assert sep, "ci.yml no longer says `runs-on: ubuntu-latest` literally"
-    # The comment sits immediately above the line it explains, and names the
-    # reason: the mini queue this flood would otherwise drown. Stems, not
-    # literals — a faithful reword ("the Mac mini queue", "queues serialise")
-    # must still pass; a comment that drops the reason must not.
+    head, sep, _ = text.partition("runs-on: " + ROUTED)
+    assert sep, "ci.yml no longer carries the routing expression literally"
+    # The comment sits immediately above the line it explains and names the
+    # reason: RunsOn, where each job gets its own machine, so the flood that
+    # kept this job off the Mac minis has no queue to fill. Stems, not literals.
     above = [l.strip() for l in head.splitlines()[-14:] if l.strip().startswith("#")]
     rationale = " ".join(above).lower()
-    assert "mini" in rationale and ("queue" in rationale or "serialis" in rationale), (
-        "the comment above runs-on must say why the sandbox stays on "
-        "ubuntu-latest — the Mac mini queue it would otherwise flood"
+    assert "runson" in rationale.replace("-", "").replace(" ", "") and "queue" in rationale, (
+        "the comment above runs-on must say why this job rides the routing "
+        "variable — RunsOn, and the queue it no longer floods"
     )
 
 
