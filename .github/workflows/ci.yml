@@ -22,15 +22,14 @@ on:
     branches: [main]
 jobs:
   test:
-    # Stays on GitHub-hosted ubuntu-latest — deliberately NOT the scaffold's
-    # `fromJSON(vars.BUREAU_CI_RUNS_ON || vars.BUREAU_RUNS_ON || …)` expression
-    # (agent-bureau scaffold/customer-repo/.github/workflows/ci.yml) that
-    # routes fleet CI onto the Mac minis (DRE-4280). Each job here is
-    # ~0.3 minutes, but there are 300+ a day, and that flood would land in a
-    # queue that already serialises (38 jobs waiting on 2026-09-18). Moving it
-    # is a decision, not a drive-by: tests/test_harness_proves_main.py fails
-    # the moment this line changes.
-    runs-on: ubuntu-latest
+    # Rides the scaffold's routing expression (agent-bureau
+    # scaffold/customer-repo/.github/workflows/ci.yml), which names RunsOn here
+    # since 2026-10-06 (DRE-5984), on the CEO's rule that no job runs on
+    # GitHub's machines. From DRE-4280 it sat on ubuntu-latest because its
+    # 300+ short runs a day would have flooded the Mac mini queue (38 jobs
+    # waiting on 2026-09-18); RunsOn gives each job its own machine, so there
+    # is no queue to flood. tests/test_harness_proves_main.py pins this line.
+    runs-on: ${{ fromJSON(vars.BUREAU_CI_RUNS_ON || vars.BUREAU_RUNS_ON || '["ubuntu-latest"]') }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
