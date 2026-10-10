@@ -4,6 +4,6 @@ version = "0.0.0"
 requires-python = ">=3.12"
 [project.optional-dependencies]
 dev = [
-  "pytest==7.0.0",   # deliberately OLD — Dependabot keeps filing real PRs
+  "pytest==9.1.1",   # deliberately OLD — Dependabot keeps filing real PRs
   "pyyaml",          # tests/test_harness_proves_main.py parses ci.yml (DRE-4280); unpinned so it is not a second fixture
 ]
