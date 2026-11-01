@@ -1,0 +1,13 @@
+# Integration-harness probe — run main-gha-41264313171-1, leg stale
+
+Committed by bureau-pipeline's integration harness
+(`scripts/harness/`, scenario `gate_paths`) to exercise the live
+merge gate. This leg is after the first approval lands, the harness immediately pushes a
+follow-up commit, making that approval stale: the merge gate must
+hold until a fresh review covers the new commit.
+
+It records nothing and changes no behavior. The harness deletes it
+during cleanup; if it is still here, a run crashed mid-flight and
+the next run's sweep will remove it.
+
+Second commit — makes the APPROVE for f1010ae7f6c0756bdc6b8b62b909d6be92e89678 stale.
