@@ -1,6 +1,32 @@
+# Dependabot for the integration-harness sandbox (DRE-4829).
+#
+# House shape (DRE-2064, agent-bureau's .github/dependabot.yml): monthly, one
+# minor/patch group per ecosystem and directory, and semver-major ignored for
+# "*". This file takes the first two and DIVERGES ON PURPOSE from the third:
+#
+#   NO semver-major ignore here. The only pinned dependency is pytest==7.0.0
+#   in pyproject.toml, kept major-stale on purpose: it is the fixture for
+#   bureau-pipeline's `dependabot_flow` harness scenario
+#   (scripts/harness/scenarios/dependabot_flow.py), which needs one genuine
+#   Dependabot PR open at all times, parked by the merge gate as a major.
+#   Dependabot's `ignore` has no "all except" form, so a "*" major ignore
+#   would also cover pytest, stop the fixture being refiled, and can close
+#   it; a failing harness proof stops `stable` advancing for the whole fleet.
+#   DRE-2064's walk-down problem cannot arise here: there is one pinned
+#   dependency and its major PR is meant to stay open.
+#
+# Never close the open pytest Dependabot PR: it IS the fixture. If it is
+# closed by mistake, `@dependabot recreate` on it restores it.
+#
+# Stable-only is Dependabot's default; no config is added for it.
 version: 2
 updates:
   - package-ecosystem: "pip"
     directory: "/"
-    schedule: { interval: "weekly" }
+    schedule:
+      interval: "monthly"
     open-pull-requests-limit: 5
+    groups:
+      pip-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
